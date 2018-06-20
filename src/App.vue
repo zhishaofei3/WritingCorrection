@@ -40,8 +40,9 @@ export default {
       rotation: 0, // 0 90 180 270 360,
       group: null,
       fabricImg: null, // fabric.Image
-      zoomArr: [1, 1.15, 1.3 , 1.45, 1.6, 1.75, 1.9, 2.05, 2.2],
+      zoomArr: [1, 1.15, 1.3, 1.45, 1.6, 1.75, 1.9, 2.05, 2.2],
       zoomNum: 0,
+      isKuanTu: true, // 是否是宽图
     }
   },
   mounted() {
@@ -54,11 +55,10 @@ export default {
     // img.src = './dist/QQ20180619-122931.png'
     img.crossOrigin = 'anonymous'
     img.addEventListener('load', () => {
-      console.log('img wh', img.width, img.height)
       this.fabricImg = new fabric.Image(img, {width: img.width, height: img.height, crossOrigin: 'anonymous'})
       this.fabricImg.crossOrigin = 'anonymous'
-      let suoFangBiLi = this.coumputeWH(img.width, img.height)
-      console.log('zsf suoFangBiLi', suoFangBiLi)
+      let {suoFangBiLi, isKuanTu} = this.coumputeWH(img.width, img.height)
+      this.isKuanTu = isKuanTu
       this.fabricImg.scaleX = suoFangBiLi
       this.fabricImg.scaleY = suoFangBiLi
       this.fabricImg.hoverCursor = 'default'
@@ -110,14 +110,17 @@ export default {
     coumputeWH(sw, sh) {
       let sourceBili = sh / sw
       let w = 0, h = 0
+      let isKuanTu = true
       if (sourceBili > 3 / 4) { // 大于4:3 按宽算
         w = 1000
         h = w * sourceBili
+        isKuanTu = false
       } else { // 小于4:3 按高算
         h = 750
         w = h / sourceBili
+        isKuanTu = true
       }
-      return w / sw
+      return {suoFangBiLi: w / sw, isKuanTu}
     },
     rotate(angle) {
       this.rotation += angle
@@ -142,7 +145,6 @@ export default {
       this.group.selectable = true
       this.myCanvas.setActiveObject(this.group)
       this.myCanvas.renderAll()
-      console.log('zsf 走了!')
     },
     onClickPenBtn() {
       this.destroyGroup()
@@ -152,9 +154,10 @@ export default {
       this.destroyGroup()
       this.mode = mode.ERASER
     },
-    onClickRotationBtn() {
+    onClickRotationBtn() {//旋转的时候也得计算缩放
       this.destroyGroup()
       this.rotate(90)
+      this.setZoom()
       this.setMode()
     },
     onClickResetBtn() {
@@ -166,7 +169,6 @@ export default {
       lines.forEach(item => {
         this.myCanvas.remove(item)
       })
-      console.log(this.fabricImg, this.fabricImg.scaleX, this.fabricImg.scaleY, this.fabricImg.x, this.fabricImg.y)
       this.setMode()
     },
     onClickZoomInBtn() { // 放大 todo 增加mouse wheel放大 http://fabricjs.com/fabric-intro-part-5
@@ -232,6 +234,9 @@ export default {
     },
     getTargetScaleByGroupWH(groupW, groupH) { // 宽 也可能是高 看旋转方向而定
       let isCrosswise = this.rotation == 90 || this.rotation == 270 // 横向
+      if (this.isKuanTu) {
+        isCrosswise = !isCrosswise
+      }
       let defaultWH = isCrosswise ? 750 : 1000
       let nowWH = isCrosswise ? groupH : groupW
       let targetZoom = this.zoomArr[this.zoomNum]
