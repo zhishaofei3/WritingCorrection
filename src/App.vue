@@ -266,20 +266,16 @@ export default {
     checkAndSetTargetInView(target) {
       target.setCoords()
       if (target.aCoords.tl.x > 0) {
-        target.set('left', 0)
-        target.setCoords()
+        target.set('left', 0).setCoords()
       }
       if (target.aCoords.br.x < 1000) {
-        target.set('left', 1000 - target.width)
-        target.setCoords()
+        target.set('left', 1000 - target.width).setCoords()
       }
       if (target.aCoords.tl.y > 0) {
-        target.set('top', 0)
-        target.setCoords()
+        target.set('top', 0).setCoords()
       }
       if (target.aCoords.br.y < 750) {
-        target.set('top', 750 - target.height)
-        target.setCoords()
+        target.set('top', 750 - target.height).setCoords()
       }
     },
     hi() {
