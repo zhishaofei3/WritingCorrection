@@ -43,6 +43,7 @@ export default {
       zoomArr: [1, 1.15, 1.3, 1.45, 1.6, 1.75, 1.9, 2.05, 2.2],
       zoomNum: 0,
       isKuanTu: true, // 是否是宽图
+      isMouseDown: false,
     }
   },
   mounted() {
@@ -50,8 +51,8 @@ export default {
     this.myCanvas.selection = false
     var img = new Image()
     // img.src = 'http://test-ic-static.vipkid.com.cn/course/material/DEMO1-U1-LC1-L2/5827cbca05bdb0dcdf20b8d6b261ec34.jpg'
-    // img.src = './dist/kuan.jpg'
-    img.src = './dist/shu.jpg'
+    img.src = './dist/kuan.jpg'
+    // img.src = './dist/shu.jpg'
     // img.src = './dist/QQ20180619-122931.png'
     img.crossOrigin = 'anonymous'
     img.addEventListener('load', () => {
@@ -94,17 +95,31 @@ export default {
         }
       })
 
-      this.myCanvas.on('mouse:wheel', opt => { // 放大后有边框大小没更新问题 待修复
-        let curZoom = this.myCanvas.getZoom()
-        curZoom += opt.e.deltaY < 0 ? 0.15 : -0.15
-        if (curZoom > 2.2) {
-          curZoom = 2.2
-        } else if (curZoom < 1) {
-          curZoom = 1
+      // this.myCanvas.on('mouse:wheel', opt => { // 放大后有边框大小没更新问题 待修复
+      //   let curZoom = this.myCanvas.getZoom()
+      //   curZoom += opt.e.deltaY < 0 ? 0.15 : -0.15
+      //   if (curZoom > 2.2) {
+      //     curZoom = 2.2
+      //   } else if (curZoom < 1) {
+      //     curZoom = 1
+      //   }
+      //   this.myCanvas.zoomToPoint(new fabric.Point(opt.e.offsetX, opt.e.offsetY), curZoom)
+      //   opt.e.preventDefault()
+      //   opt.e.stopPropagation()
+      // })
+
+      fabric.util.addListener(fabric.document, 'mousedown', e => {
+        this.isMouseDown = true
+      })
+
+      fabric.util.addListener(fabric.document, 'mouseup', e => {
+        this.isMouseDown = false
+      })
+
+      this.myCanvas.on('mouse:move', opt => {
+        if (this.isMouseDown && opt.target && opt.target.path && this.mode == mode.ERASER) { // 橡皮擦线
+          this.myCanvas.remove(opt.target)
         }
-        this.myCanvas.zoomToPoint(new fabric.Point(opt.e.offsetX, opt.e.offsetY), curZoom)
-        opt.e.preventDefault()
-        opt.e.stopPropagation()
       })
     },
     coumputeWH(sw, sh) {
