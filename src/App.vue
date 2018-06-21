@@ -160,7 +160,7 @@ export default {
       this.group.hasBorders = true
       this.group.selectable = true
       this.group.on('moving', opt => {
-        this.checkTargetInView(opt.target) // 控制图片不超出边界
+        this.checkAndSetTargetInView(opt.target) // 控制图片不超出边界
       })
       this.myCanvas.setActiveObject(this.group)
       this.myCanvas.renderAll()
@@ -263,7 +263,7 @@ export default {
       let targetScale = targetWH / nowWH
       return targetScale
     },
-    checkTargetInView(target) {
+    checkAndSetTargetInView(target) {
       target.setCoords()
       if (target.aCoords.tl.x > 0) {
         target.set('left', 0)
