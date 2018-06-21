@@ -51,8 +51,8 @@ export default {
     this.myCanvas.selection = false
     var img = new Image()
     // img.src = 'http://test-ic-static.vipkid.com.cn/course/material/DEMO1-U1-LC1-L2/5827cbca05bdb0dcdf20b8d6b261ec34.jpg'
-    img.src = './dist/kuan.jpg'
-    // img.src = './dist/shu.jpg'
+    // img.src = './dist/kuan.jpg'
+    img.src = './dist/shu.jpg'
     // img.src = './dist/QQ20180619-122931.png'
     img.crossOrigin = 'anonymous'
     img.addEventListener('load', () => {
@@ -68,6 +68,7 @@ export default {
       this.fabricImg.hasControls = false
       this.myCanvas.add(this.fabricImg)
       this.myCanvas.renderAll()
+      this.onClickMoveBtn()
     })
     this.addEvents()
   },
@@ -158,6 +159,9 @@ export default {
       this.group.hasControls = true
       this.group.hasBorders = true
       this.group.selectable = true
+      this.group.on('moving', opt => {
+        this.checkTargetInView(opt.target) // 控制图片不超出边界
+      })
       this.myCanvas.setActiveObject(this.group)
       this.myCanvas.renderAll()
     },
@@ -258,6 +262,25 @@ export default {
       let targetWH = defaultWH * targetZoom
       let targetScale = targetWH / nowWH
       return targetScale
+    },
+    checkTargetInView(target) {
+      target.setCoords()
+      if (target.aCoords.tl.x > 0) {
+        target.set('left', 0)
+        target.setCoords()
+      }
+      if (target.aCoords.br.x < 1000) {
+        target.set('left', 1000 - target.width)
+        target.setCoords()
+      }
+      if (target.aCoords.tl.y > 0) {
+        target.set('top', 0)
+        target.setCoords()
+      }
+      if (target.aCoords.br.y < 750) {
+        target.set('top', 750 - target.height)
+        target.setCoords()
+      }
     },
     hi() {
       console.log('app hi')
