@@ -15,10 +15,6 @@
           <a href="#none" target="_self" @click="onClickRotationBtn">旋转</a>
           <a href="#none" target="_self" @click="onClickResetBtn">重置</a>
           <a href="#none" target="_self" @click="onClickZoomBtn">缩放</a>
-          <a href="#none" target="_self" @click="onClickPrevBtn">上一页</a>
-          <span>1/3</span>
-          <a href="#" target="#none" @click="onClickNextBtn">下一页</a>
-          <a href="#" target="#none" @click="onClickHideBtn">收起</a>
         </div>
       </div>
     </div>
