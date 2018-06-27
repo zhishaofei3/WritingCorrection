@@ -326,12 +326,4 @@
     height: 750px;
     background-color: #F00;
   }
-
-  .img-wrap {
-
-  }
-
-  .img-wrap img {
-
-  }
 </style>
