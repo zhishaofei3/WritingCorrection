@@ -48,7 +48,7 @@
     mounted() {
       this.myCanvas = new fabric.Canvas('myCanvas')
       this.myCanvas.selection = false
-      var img = new Image()
+      let img = new Image()
       // img.src = 'http://test-ic-static.vipkid.com.cn/course/material/DEMO1-U1-LC1-L2/5827cbca05bdb0dcdf20b8d6b261ec34.jpg'
       // img.src = './dist/kuan.jpg'
       img.src = './dist/shu.jpg'
@@ -74,9 +74,9 @@
     methods: {
       addEvents() {
         this.myCanvas.on('path:created', opt => {
-          var shape = opt.path
+          let shape = opt.path
           this.myCanvas.remove(shape)
-          var path = new fabric.Path(getPathStr(shape), {
+          let path = new fabric.Path(getPathStr(shape), {
             strokeLineCap: 'round',
             strokeLineJoin: 'round',
             fill: null,
