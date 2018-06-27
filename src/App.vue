@@ -62,6 +62,7 @@
         this.fabricImg.hasBorders = false
         this.fabricImg.hasControls = false
         this.myCanvas.add(this.fabricImg)
+        this.setZoom(true)
         this.myCanvas.renderAll()
         this.onClickMoveBtn()
       })
@@ -212,7 +213,7 @@
         this.destroyGroup()
         this.rotate(360 - this.rotation)
         this.zoomNum = 0
-        this.setZoom()
+        this.setZoom(true)
         let lines = this.getLines()
         lines.forEach(item => {
           this.myCanvas.remove(item)
