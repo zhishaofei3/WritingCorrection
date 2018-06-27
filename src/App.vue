@@ -106,34 +106,27 @@
           }
         })
 
+        fabric.util.addListener(fabric.document, 'keydown', e => {
+          if (e.keyCode == 37) { // 左箭头 todo 角度计算有问题 暂时不支持
+
+          } else if (e.keyCode == 39) { // 右箭头
+            this.rotate(90)
+          } else if (e.keyCode == 38) { // 上箭头
+            this.changeZoom(true, this.getGroupCanvasCenterPoint())
+          } else if (e.keyCode == 40) { // 下箭头
+            this.changeZoom(false, this.getGroupCanvasCenterPoint())
+          }
+        })
+
         this.myCanvas.on('mouse:wheel', opt => {
           this.setZoom()
           let e = opt.e
-          let delta = e.deltaY  // >0放大 <0缩小
           let yuanXY = {
             x: e.offsetX + Math.abs(this.group.aCoords.tl.x),
             y: e.offsetY + Math.abs(this.group.aCoords.tl.y)
           }
-          if (delta < 0) {
-            this.zoomNum++
-            if (this.zoomNum > this.zoomArr.length - 1) {
-              this.zoomNum = this.zoomArr.length - 1
-            }
-          } else {
-            this.zoomNum--
-            if (this.zoomNum < 0) {
-              this.zoomNum = 0
-            }
-          }
-          let nowScale = this.getGroupScale()
-          this.setZoom()
-          let xianXY = {x: yuanXY.x * nowScale, y: yuanXY.y * nowScale}
-          let chaXY = {x: xianXY.x - yuanXY.x, y: xianXY.y - yuanXY.y}
-          this.group.set('left', this.group.left - chaXY.x)
-          this.group.set('top', this.group.top - chaXY.y)
-          this.setZoom()
-          this.checkAndSetTargetInView(this.group) // 控制图片不超出边界
-          this.setZoom()
+          // e.deltaY <0放大 >0缩小
+          this.changeZoom(e.deltaY < 0, yuanXY)
         })
       },
       coumputeWH(sw, sh) {
@@ -151,9 +144,31 @@
         }
         return {suoFangBiLi: w / sw, isKuanTu}
       },
+      changeZoom(isZoomIn, yuanXY) {
+        if (isZoomIn) {
+          this.zoomNum++
+          if (this.zoomNum > this.zoomArr.length - 1) {
+            this.zoomNum = this.zoomArr.length - 1
+          }
+        } else {
+          this.zoomNum--
+          if (this.zoomNum < 0) {
+            this.zoomNum = 0
+          }
+        }
+        let nowScale = this.getGroupScale()
+        this.setZoom()
+        let xianXY = {x: yuanXY.x * nowScale, y: yuanXY.y * nowScale}
+        let chaXY = {x: xianXY.x - yuanXY.x, y: xianXY.y - yuanXY.y}
+        this.group.set('left', this.group.left - chaXY.x)
+        this.group.set('top', this.group.top - chaXY.y)
+        this.setZoom()
+        this.checkAndSetTargetInView(this.group) // 控制图片不超出边界
+        this.setZoom()
+      },
       rotate(angle) {
         this.rotation += angle
-        if (this.rotation == 360) {
+        if (this.rotation == 360) { // todo % 4 计算
           this.rotation = 0
         }
         this.group = new fabric.Group(this.myCanvas.getObjects(), {
@@ -161,10 +176,7 @@
           hasBorders: true,
           selectable: true
         })
-        let yuanCenterXY = { // 获取当前canvas正中心相对于图片内部坐标
-          x: Math.abs(this.group.left) + this.myCanvas.width / 2,
-          y: Math.abs(this.group.top) + + this.myCanvas.height / 2
-        }
+        let yuanCenterXY = this.getGroupCanvasCenterPoint() // 获取当前canvas正中心相对于图片内部坐标
         let xianCenterXY = { // 计算角度变换90°之后的坐标 todo其他角度的转换支持
           x: this.group.height - yuanCenterXY.y,
           y: yuanCenterXY.x
@@ -299,6 +311,12 @@
           target.set('top', 750 - target.height).setCoords()
         }
       },
+      getGroupCanvasCenterPoint() {
+        return { // 获取当前canvas正中心相对于图片内部坐标
+          x: Math.abs(this.group.left) + this.myCanvas.width / 2,
+          y: Math.abs(this.group.top) + +this.myCanvas.height / 2
+        }
+      },
       hi() {
         console.log('app hi')
       },
@@ -308,6 +326,7 @@
         if (val == mode.PEN) {
           this.myCanvas.isDrawingMode = true
           this.myCanvas.freeDrawingBrush.width = 3
+          this.myCanvas.freeDrawingBrush.color = '#F00'
         } else {
           console.log('zsf 模式变换')
           this.myCanvas.isDrawingMode = false
