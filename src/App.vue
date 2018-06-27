@@ -112,7 +112,7 @@
         this.myCanvas.on('mouse:wheel', opt => {
           this.setZoom(false)
           let e = opt.e
-          var delta = e.deltaY  // >0放大 <0缩小
+          let delta = e.deltaY  // >0放大 <0缩小
           let yuanXY = {
             x: e.offsetX + Math.abs(this.group.aCoords.tl.x),
             y: e.offsetY + Math.abs(this.group.aCoords.tl.y)
