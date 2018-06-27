@@ -106,7 +106,7 @@
         })
 
         this.myCanvas.on('mouse:wheel', opt => {
-          this.setZoom(false)
+          this.setZoom()
           let e = opt.e
           let delta = e.deltaY  // >0放大 <0缩小
           let yuanXY = {
@@ -125,14 +125,14 @@
             }
           }
           let nowScale = this.getGroupScale()
-          this.setZoom(false)
+          this.setZoom()
           let xianXY = {x: yuanXY.x * nowScale, y: yuanXY.y * nowScale}
           let chaXY = {x: xianXY.x - yuanXY.x, y: xianXY.y - yuanXY.y}
           this.group.set('left', this.group.left - chaXY.x)
           this.group.set('top', this.group.top - chaXY.y)
-          this.setZoom(false)
+          this.setZoom()
           this.checkAndSetTargetInView(this.group) // 控制图片不超出边界
-          this.setZoom(false)
+          this.setZoom()
         })
       },
       coumputeWH(sw, sh) {
@@ -155,21 +155,40 @@
         if (this.rotation == 360) {
           this.rotation = 0
         }
-        this.group = new fabric.Group(this.myCanvas.getObjects())
+        this.group = new fabric.Group(this.myCanvas.getObjects(), {
+          hasControls: true,
+          hasBorders: true,
+          selectable: true
+        })
+        let yuanCenterXY = { // 获取当前canvas正中心相对于图片内部坐标
+          x: Math.abs(this.group.left) + this.myCanvas.width / 2,
+          y: Math.abs(this.group.top) + + this.myCanvas.height / 2
+        }
+        let xianCenterXY = { // 计算角度变换90°之后的坐标 todo其他角度的转换支持
+          x: this.group.height - yuanCenterXY.y,
+          y: yuanCenterXY.x
+        }
         this.group.rotate(angle)
-        this.myCanvas.centerObject(this.group)
-        this.group.setCoords()
-        this.group.destroy()
-        this.group = null
-        this.myCanvas.renderAll()
+        this.setZoom()
+        let groupScale = this.getGroupScale()
+        this.setZoom()
+        xianCenterXY = { // 由于横竖转换的时候，需要根据canvas缩放图片，所以转换前后的比例并不是1:1，需要根据比例计算新的中心点位置
+          x: xianCenterXY.x * groupScale,
+          y: xianCenterXY.y * groupScale
+        }
+        this.group.set('left', -(xianCenterXY.x - this.myCanvas.width / 2))
+        this.group.set('top', -(xianCenterXY.y - this.myCanvas.height / 2))
+        this.checkAndSetTargetInView(this.group)
+        this.setZoom()
       },
       onClickMoveBtn() {
         this.destroyGroup()
         this.mode = mode.MOVE
-        this.group = new fabric.Group(this.myCanvas.getObjects())
-        this.group.hasControls = true
-        this.group.hasBorders = true
-        this.group.selectable = true
+        this.group = new fabric.Group(this.myCanvas.getObjects(), {
+          hasControls: true,
+          hasBorders: true,
+          selectable: true
+        })
         this.group.on('moving', opt => { // moving是否会重复侦听?
           this.checkAndSetTargetInView(opt.target) // 控制图片不超出边界
         })
@@ -187,7 +206,6 @@
       onClickRotationBtn() {//旋转的时候也得计算缩放
         this.destroyGroup()
         this.rotate(90)
-        this.setZoom()
         this.setMode()
       },
       onClickResetBtn() {
@@ -204,18 +222,9 @@
       onClickZoomBtn() {
         this.destroyGroup()
         this.mode = mode.ZOOM
-        this.setZoom(false)
+        this.setZoom()
       },
-      onClickPrevBtn() {
-        this.destroyGroup()
-      },
-      onClickNextBtn() {
-        this.destroyGroup()
-      },
-      onClickHideBtn() {
-        this.destroyGroup()
-      },
-      setZoom(needCenter = true) {
+      setZoom(needCenter = false) {
         this.destroyGroup()
         this.group = new fabric.Group(this.myCanvas.getObjects())
         this.group.hasControls = true
@@ -297,6 +306,7 @@
       mode(val) {
         if (val == mode.PEN) {
           this.myCanvas.isDrawingMode = true
+          this.myCanvas.freeDrawingBrush.width = 3
         } else {
           console.log('zsf 模式变换')
           this.myCanvas.isDrawingMode = false
