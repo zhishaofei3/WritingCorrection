@@ -165,8 +165,10 @@
         this.setZoom()
         this.checkAndSetTargetInView(this.group) // 控制图片不超出边界
         this.setZoom()
+        this.setMode()
       },
       rotate(angle) {
+        this.destroyGroup()
         this.rotation = get259Angle(this.rotation + angle)
         console.log(this.rotation)
         this.group = new fabric.Group(this.myCanvas.getObjects(), {
@@ -186,6 +188,7 @@
         this.group.set('top', point.y)
         this.group.rotate(angle)
         this.destroyGroup()
+        this.setMode()
       },
       onClickMoveBtn() {
         this.destroyGroup()
@@ -210,7 +213,6 @@
         this.mode = mode.ERASER
       },
       onClickRotationBtn() {//旋转的时候也得计算缩放
-        this.destroyGroup()
         this.rotate(90)
         console.log('zsf mode', this.mode)
         // this.setMode()
@@ -228,7 +230,6 @@
       },
       onClickZoomBtn() {
         this.destroyGroup()
-        this.mode = mode.ZOOM
         this.setZoom()
       },
       setZoom(needCenter = false) {
@@ -274,8 +275,6 @@
           this.onClickEraserBtn()
         } else if (this.mode == mode.PEN) {
           this.onClickPenBtn()
-        } else if (this.mode == mode.ZOOM) {
-          this.onClickZoomBtn()
         }
       },
       getTargetScaleByGroupWH(groupW, groupH) { // 宽 也可能是高 看旋转方向而定
