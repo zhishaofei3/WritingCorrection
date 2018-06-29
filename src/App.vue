@@ -24,7 +24,7 @@
 <script>
   import {fabric} from 'fabric'
   import mode from './mode'
-  import {getPathStr} from './tools'
+  import {getPathStr, get259Angle} from './tools'
   export default {
     name: 'app',
     data() {
@@ -62,7 +62,7 @@
         this.fabricImg.hasBorders = false
         this.fabricImg.hasControls = false
         this.myCanvas.add(this.fabricImg)
-        this.setZoom(true)
+        this.setZoom()
         this.myCanvas.renderAll()
         this.onClickMoveBtn()
       })
@@ -108,7 +108,7 @@
 
         fabric.util.addListener(fabric.document, 'keydown', e => {
           if (e.keyCode == 37) { // 左箭头 todo 角度计算有问题 暂时不支持
-
+            this.rotate(-90)
           } else if (e.keyCode == 39) { // 右箭头
             this.rotate(90)
           } else if (e.keyCode == 38) { // 上箭头
@@ -167,32 +167,25 @@
         this.setZoom()
       },
       rotate(angle) {
-        this.rotation += angle
-        if (this.rotation == 360) { // todo % 4 计算
-          this.rotation = 0
-        }
+        this.rotation = get259Angle(this.rotation + angle)
+        console.log(this.rotation)
         this.group = new fabric.Group(this.myCanvas.getObjects(), {
           hasControls: true,
           hasBorders: true,
-          selectable: true
+          selectable: true,
+          centeredRotation: false,
         })
-        let yuanCenterXY = this.getGroupCanvasCenterPoint() // 获取当前canvas正中心相对于图片内部坐标
-        let xianCenterXY = { // 计算角度变换90°之后的坐标 todo其他角度的转换支持
-          x: this.group.height - yuanCenterXY.y,
-          y: yuanCenterXY.x
-        }
+
+        let canvasCenterPoint = this.getGroupCanvasCenterPoint()
+        let originX = canvasCenterPoint.x / this.group.width,
+          originY = canvasCenterPoint.y / this.group.height
+        let point = this.group.getPointByOrigin(originX, originY)
+        this.group.originX = originX
+        this.group.originY = originY
+        this.group.set('left', point.x)
+        this.group.set('top', point.y)
         this.group.rotate(angle)
-        this.setZoom()
-        let groupScale = this.getGroupScale()
-        this.setZoom()
-        xianCenterXY = { // 由于横竖转换的时候，需要根据canvas缩放图片，所以转换前后的比例并不是1:1，需要根据比例计算新的中心点位置
-          x: xianCenterXY.x * groupScale,
-          y: xianCenterXY.y * groupScale
-        }
-        this.group.set('left', -(xianCenterXY.x - this.myCanvas.width / 2))
-        this.group.set('top', -(xianCenterXY.y - this.myCanvas.height / 2))
-        this.checkAndSetTargetInView(this.group)
-        this.setZoom()
+        this.destroyGroup()
       },
       onClickMoveBtn() {
         this.destroyGroup()
@@ -219,7 +212,8 @@
       onClickRotationBtn() {//旋转的时候也得计算缩放
         this.destroyGroup()
         this.rotate(90)
-        this.setMode()
+        console.log('zsf mode', this.mode)
+        // this.setMode()
       },
       onClickResetBtn() {
         this.destroyGroup()
@@ -313,8 +307,8 @@
       },
       getGroupCanvasCenterPoint() {
         return { // 获取当前canvas正中心相对于图片内部坐标
-          x: Math.abs(this.group.left) + this.myCanvas.width / 2,
-          y: Math.abs(this.group.top) + +this.myCanvas.height / 2
+          x: -(this.group.left) + this.myCanvas.width / 2,
+          y: -(this.group.top) + this.myCanvas.height / 2
         }
       },
       hi() {
@@ -326,7 +320,6 @@
         if (val == mode.PEN) {
           this.myCanvas.isDrawingMode = true
           this.myCanvas.freeDrawingBrush.width = 3
-          this.myCanvas.freeDrawingBrush.color = '#F00'
         } else {
           console.log('zsf 模式变换')
           this.myCanvas.isDrawingMode = false

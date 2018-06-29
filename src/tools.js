@@ -73,3 +73,12 @@ function checkCurVature(qPoint1, qPoint2, qPoint3) {
 
   return result > 0.12
 }
+
+
+export function get259Angle(angle) {
+  if (angle < 0) {
+    return angle % 360 + 360
+  } else {
+    return angle % 360
+  }
+}
