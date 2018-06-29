@@ -107,7 +107,7 @@
         })
 
         fabric.util.addListener(fabric.document, 'keydown', e => {
-          if (e.keyCode == 37) { // 左箭头 todo 角度计算有问题 暂时不支持
+          if (e.keyCode == 37) { // 左箭头
             this.rotate(-90)
           } else if (e.keyCode == 39) { // 右箭头
             this.rotate(90)
