@@ -215,7 +215,6 @@
       onClickRotationBtn() {//旋转的时候也得计算缩放
         this.rotate(90)
         console.log('zsf mode', this.mode)
-        // this.setMode()
       },
       onClickResetBtn() {
         this.destroyGroup()
@@ -229,7 +228,6 @@
         this.setMode()
       },
       onClickZoomBtn() {
-        this.destroyGroup()
         this.setZoom()
       },
       setZoom(needCenter = false) {
