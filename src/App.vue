@@ -25,6 +25,7 @@
   import {fabric} from 'fabric'
   import mode from './mode'
   import {getPathStr, get259Angle} from './tools'
+
   export default {
     name: 'app',
     data() {
