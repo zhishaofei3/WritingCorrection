@@ -15,6 +15,7 @@
           <a href="#none" target="_self" @click="onClickRotationBtn">旋转</a>
           <a href="#none" target="_self" @click="onClickResetBtn">重置</a>
           <a href="#none" target="_self" @click="onClickZoomBtn">缩放</a>
+          <a href="#none" target="_self" @click="onClickLogWH">打印当前宽高</a>
         </div>
       </div>
     </div>
@@ -24,7 +25,7 @@
 <script>
   import {fabric} from 'fabric'
   import mode from './mode'
-  import {getPathStr, get259Angle} from './tools'
+  import {getPathStr, get259Angle, isPC} from './tools'
   export default {
     name: 'app',
     data() {
@@ -73,6 +74,33 @@
         this.myCanvas.on('path:created', opt => {
           let shape = opt.path
           this.myCanvas.remove(shape)
+          let shapePath = shape.path
+          let brushW = this.myCanvas.freeDrawingBrush.width
+
+          shapePath.forEach((arr, i) => {
+            arr.forEach((point, j) => {
+              if (j) { // 第一位为字母，不要
+                if (j % 2 && point < this.group.left) {
+                  arr[j] = this.group.left
+                }
+
+                if (j % 2 && point > this.group.width + this.group.left - brushW) {
+                  arr[j] = this.group.width + this.group.left - brushW
+                }
+
+                if (j % 2 == 0 && point < this.group.top) {
+                  arr[j] = this.group.top
+                }
+
+                if (j % 2 == 0 && point > this.group.height + this.group.top - brushW) {
+                  arr[j] = this.group.height + this.group.top - brushW
+                }
+
+                arr[j] = parseInt(arr[j])
+              }
+            })
+          })
+
           let path = new fabric.Path(getPathStr(shape), {
             strokeLineCap: 'round',
             strokeLineJoin: 'round',
@@ -212,14 +240,33 @@
       onClickPenBtn() {
         this.destroyGroup()
         this.mode = mode.PEN
+        this.group = new fabric.Group(this.myCanvas.getObjects(), {
+          hasControls: true,
+          hasBorders: true,
+          selectable: false
+        })
       },
       onClickEraserBtn() {
         this.destroyGroup()
         this.mode = mode.ERASER
+        this.group = new fabric.Group(this.myCanvas.getObjects(), {
+          hasControls: true,
+          hasBorders: true,
+          selectable: false
+        })
       },
       onClickRotationBtn() {//旋转的时候也得计算缩放
         this.rotate(90)
         console.log('zsf mode', this.mode)
+      },
+      onClickLogWH() { // debug 打印当前宽高
+        this.destroyGroup()
+        this.group = new fabric.Group(this.myCanvas.getObjects(), {
+          hasControls: true,
+          hasBorders: true,
+          selectable: false
+        })
+        console.log('zsf group wh', this.group)
       },
       onClickResetBtn() {
         this.destroyGroup()

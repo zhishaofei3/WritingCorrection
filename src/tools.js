@@ -82,3 +82,7 @@ export function get259Angle(angle) {
     return angle % 360
   }
 }
+
+export function isPC() {
+  return !((/(iphone|ipod|ipad|android|ios|symbianos)/i).test(window.navigator.userAgent))
+}
