@@ -24,7 +24,7 @@
 <script>
   import {fabric} from 'fabric'
   import mode from './mode'
-  import {getPathStr, get259Angle, isPC} from './tools'
+  import {getPathStr, get259Angle} from './tools'
   export default {
     name: 'app',
     data() {
@@ -73,33 +73,6 @@
         this.myCanvas.on('path:created', opt => {
           let shape = opt.path
           this.myCanvas.remove(shape)
-          let shapePath = shape.path
-          let brushW = this.myCanvas.freeDrawingBrush.width
-
-          shapePath.forEach((arr, i) => {
-            arr.forEach((point, j) => {
-              if (j) { // 第一位为字母，不要
-                if (j % 2 && point < this.group.left) {
-                  arr[j] = this.group.left
-                }
-
-                if (j % 2 && point > this.group.width + this.group.left - brushW) {
-                  arr[j] = this.group.width + this.group.left - brushW
-                }
-
-                if (j % 2 == 0 && point < this.group.top) {
-                  arr[j] = this.group.top
-                }
-
-                if (j % 2 == 0 && point > this.group.height + this.group.top - brushW) {
-                  arr[j] = this.group.height + this.group.top - brushW
-                }
-
-                arr[j] = parseInt(arr[j])
-              }
-            })
-          })
-
           let path = new fabric.Path(getPathStr(shape), {
             strokeLineCap: 'round',
             strokeLineJoin: 'round',
@@ -198,13 +171,7 @@
         this.destroyGroup()
         this.rotation = get259Angle(this.rotation + angle)
         console.log(this.rotation)
-        this.group = new fabric.Group(this.myCanvas.getObjects(), {
-          hasControls: true,
-          hasBorders: true,
-          selectable: true,
-          centeredRotation: false,
-        })
-
+        this.createNewGroup({centeredRotation: false})
         let canvasCenterPoint = this.getGroupCanvasCenterPoint()
         let originX = canvasCenterPoint.x / this.group.width,
           originY = canvasCenterPoint.y / this.group.height
@@ -214,23 +181,20 @@
         this.group.set('left', point.x)
         this.group.set('top', point.y)
         this.group.rotate(angle)
-        this.destroyGroup()
-        this.setZoom()
-        this.destroyGroup()
-        this.setZoom()
-        this.checkAndSetTargetInView(this.group) // 控制图片不超出边界
-        this.setZoom()
+        if (!this.zoomNum) { // 初值的时候 重新计算边界宽度
+          console.log('zsf 进来了')
+          this.setZoom()
+          this.setZoom()
+          this.checkAndSetTargetInView(this.group) // 控制图片不超出边界
+          this.setZoom()
+        }
         this.setMode()
       },
       onClickMoveBtn() {
         this.destroyGroup()
         this.mode = mode.MOVE
-        this.group = new fabric.Group(this.myCanvas.getObjects(), {
-          hasControls: true,
-          hasBorders: true,
-          selectable: true
-        })
-        this.group.on('moving', opt => {
+        this.createNewGroup()
+        this.group.on('moving', opt => { // moving是否会重复侦听?
           this.checkAndSetTargetInView(opt.target) // 控制图片不超出边界
         })
         this.myCanvas.setActiveObject(this.group)
@@ -239,20 +203,10 @@
       onClickPenBtn() {
         this.destroyGroup()
         this.mode = mode.PEN
-        this.group = new fabric.Group(this.myCanvas.getObjects(), {
-          hasControls: true,
-          hasBorders: true,
-          selectable: false
-        })
       },
       onClickEraserBtn() {
         this.destroyGroup()
         this.mode = mode.ERASER
-        this.group = new fabric.Group(this.myCanvas.getObjects(), {
-          hasControls: true,
-          hasBorders: true,
-          selectable: false
-        })
       },
       onClickRotationBtn() {//旋转的时候也得计算缩放
         this.rotate(90)
@@ -274,11 +228,7 @@
       },
       setZoom(needCenter = false) {
         this.destroyGroup()
-        this.group = new fabric.Group(this.myCanvas.getObjects(), {
-          hasControls: true,
-          hasBorders: true,
-          selectable: false
-        })
+        this.createNewGroup()
         let targetScale = this.getGroupScale()
         this.group.scale(targetScale)
         if (needCenter) {
@@ -350,6 +300,15 @@
           x: -(this.group.left) + this.myCanvas.width / 2,
           y: -(this.group.top) + this.myCanvas.height / 2
         }
+      },
+      createNewGroup(opts) {
+        this.group = new fabric.Group(this.myCanvas.getObjects(), {
+          hasControls: true,
+          hasBorders: true,
+          selectable: true,
+          ...opts
+        })
+        return this.group
       },
       hi() {
         console.log('app hi')
