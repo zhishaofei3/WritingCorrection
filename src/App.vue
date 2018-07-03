@@ -15,7 +15,6 @@
           <a href="#none" target="_self" @click="onClickRotationBtn">旋转</a>
           <a href="#none" target="_self" @click="onClickResetBtn">重置</a>
           <a href="#none" target="_self" @click="onClickZoomBtn">缩放</a>
-          <a href="#none" target="_self" @click="onClickLogWH">打印当前宽高</a>
         </div>
       </div>
     </div>
@@ -47,8 +46,8 @@
       this.myCanvas.selection = false
       let img = new Image()
       // img.src = 'http://test-ic-static.vipkid.com.cn/course/material/DEMO1-U1-LC1-L2/5827cbca05bdb0dcdf20b8d6b261ec34.jpg'
-      img.src = './dist/kuan.jpg'
-      // img.src = './dist/shu.jpg'
+      // img.src = './dist/kuan.jpg'
+      img.src = './dist/shu.jpg'
       // img.src = './dist/QQ20180619-122931.png'
       img.crossOrigin = 'anonymous'
       img.addEventListener('load', () => {
@@ -258,15 +257,6 @@
       onClickRotationBtn() {//旋转的时候也得计算缩放
         this.rotate(90)
         console.log('zsf mode', this.mode)
-      },
-      onClickLogWH() { // debug 打印当前宽高
-        this.destroyGroup()
-        this.group = new fabric.Group(this.myCanvas.getObjects(), {
-          hasControls: true,
-          hasBorders: true,
-          selectable: false
-        })
-        console.log('zsf group wh', this.group)
       },
       onClickResetBtn() {
         this.destroyGroup()
