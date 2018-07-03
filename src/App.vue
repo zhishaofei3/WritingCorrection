@@ -203,7 +203,7 @@
           hasBorders: true,
           selectable: true
         })
-        this.group.on('moving', opt => { // moving是否会重复侦听?
+        this.group.on('moving', opt => {
           this.checkAndSetTargetInView(opt.target) // 控制图片不超出边界
         })
         this.myCanvas.setActiveObject(this.group)
