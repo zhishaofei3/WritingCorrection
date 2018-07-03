@@ -46,8 +46,8 @@
       this.myCanvas.selection = false
       let img = new Image()
       // img.src = 'http://test-ic-static.vipkid.com.cn/course/material/DEMO1-U1-LC1-L2/5827cbca05bdb0dcdf20b8d6b261ec34.jpg'
-      // img.src = './dist/kuan.jpg'
-      img.src = './dist/shu.jpg'
+      img.src = './dist/kuan.jpg'
+      // img.src = './dist/shu.jpg'
       // img.src = './dist/QQ20180619-122931.png'
       img.crossOrigin = 'anonymous'
       img.addEventListener('load', () => {
@@ -188,6 +188,11 @@
         this.group.set('top', point.y)
         this.group.rotate(angle)
         this.destroyGroup()
+        this.setZoom()
+        this.destroyGroup()
+        this.setZoom()
+        this.checkAndSetTargetInView(this.group) // 控制图片不超出边界
+        this.setZoom()
         this.setMode()
       },
       onClickMoveBtn() {
@@ -232,10 +237,11 @@
       },
       setZoom(needCenter = false) {
         this.destroyGroup()
-        this.group = new fabric.Group(this.myCanvas.getObjects())
-        this.group.hasControls = true
-        this.group.hasBorders = true
-        this.group.selectable = false
+        this.group = new fabric.Group(this.myCanvas.getObjects(), {
+          hasControls: true,
+          hasBorders: true,
+          selectable: false
+        })
         let targetScale = this.getGroupScale()
         this.group.scale(targetScale)
         if (needCenter) {
