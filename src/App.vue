@@ -26,6 +26,7 @@
   import mode from './mode'
   import {getPathStr, get259Angle} from './tools'
 
+  // todo 手势缩放
   export default {
     name: 'app',
     data() {
@@ -46,7 +47,6 @@
       this.myCanvas = new fabric.Canvas('myCanvas')
       this.myCanvas.selection = false
       let img = new Image()
-      // img.src = 'http://test-ic-static.vipkid.com.cn/course/material/DEMO1-U1-LC1-L2/5827cbca05bdb0dcdf20b8d6b261ec34.jpg'
       // img.src = './dist/kuan.jpg'
       img.src = './dist/shu.jpg'
       // img.src = './dist/QQ20180619-122931.png'
@@ -129,6 +129,30 @@
           // e.deltaY <0放大 >0缩小
           this.changeZoom(e.deltaY < 0, yuanXY)
         })
+
+        // this.myCanvas.on({
+        //   'touch:gesture': function() {
+        //     var text = document.createTextNode(' Gesture ');
+        //     info.insertBefore(text, info.firstChild);
+        //   },
+        //   'touch:drag': function() {
+        //     var text = document.createTextNode(' Dragging ');
+        //     info.insertBefore(text, info.firstChild);
+        //   },
+        //   'touch:orientation': function() {
+        //     var text = document.createTextNode(' Orientation ');
+        //     info.insertBefore(text, info.firstChild);
+        //   },
+        //   'touch:shake': function() {
+        //     var text = document.createTextNode(' Shaking ');
+        //     info.insertBefore(text, info.firstChild);
+        //   },
+        //   'touch:longpress': function() {
+        //     var text = document.createTextNode(' Longpress ');
+        //     info.insertBefore(text, info.firstChild);
+        //   }
+        // });
+
       },
       coumputeWH(sw, sh) {
         let sourceBili = sh / sw
@@ -226,6 +250,7 @@
       },
       onClickZoomBtn() {
         this.setZoom()
+        this.myCanvas.setActiveObject(this.group)
       },
       setZoom(needCenter = false) {
         this.destroyGroup()
